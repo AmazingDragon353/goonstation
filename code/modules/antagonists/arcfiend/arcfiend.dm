@@ -1,5 +1,6 @@
 #define MAX_ARCFIEND_POINTS 2500
 #define POWER_CELL_DRAIN_RATE 80
+#define SILICON_CELL_DRAIN_RATE (POWER_CELL_DRAIN_RATE * 4)
 #define POWER_CELL_CHARGE_PERCENT_MINIMUM 10
 #define SMES_DRAIN_RATE 100000
 #define SAP_LIMIT_APC 30
@@ -156,9 +157,14 @@ ABSTRACT_TYPE(/datum/targetable/arcfiend)
 				interrupt(INTERRUPT_ALWAYS)
 				return
 			S.TakeDamage("chest", 3, 0, DAMAGE_BURN)
-			S.cell.use(POWER_CELL_DRAIN_RATE)
+			S.cell.use(SILICON_CELL_DRAIN_RATE)
 			holder.addPoints(SAP_LIMIT_MOB)
 			S.do_disorient(stamina_damage = 50, weakened = 1 SECONDS, disorient = 2 SECOND)
+
+			if (prob(100 - ((S.cell?.charge / 100) - 40)))
+				S.emag_act(user, src)
+				S.compborg_lose_limb(part_leg_l)//,src.compborg_lose_limb(part_leg_l),src.compborg_lose_limb(part_leg_r),src.compborg_lose_limb(part_arm_l),src.compborg_lose_limb(part_arm_r))
+
 
 		else if (istype(target, /obj/machinery))
 			var/area/A = get_area(target)
